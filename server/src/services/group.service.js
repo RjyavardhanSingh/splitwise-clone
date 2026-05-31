@@ -31,7 +31,7 @@ export async function createGroup({ name, memberEmails, createdById, createdByNa
     });
 
     const acceptLink = `${process.env.CLIENT_URL || 'http://localhost:5174'}/invite?token=${token}`;
-    await sendGroupInviteEmail(email, createdByName, name, acceptLink).catch(() => {});
+    sendGroupInviteEmail(email, createdByName, name, acceptLink).catch(() => {});
     invites.push({ email, token: invite.token });
   }
 
@@ -122,7 +122,7 @@ export async function inviteMember({ groupId, email, invitedByName }) {
   });
 
   const acceptLink = `${process.env.CLIENT_URL || 'http://localhost:5174'}/invite?token=${token}`;
-  await sendGroupInviteEmail(email, invitedByName, group.name, acceptLink).catch(() => {});
+  sendGroupInviteEmail(email, invitedByName, group.name, acceptLink).catch(() => {});
 
   return { message: 'Invite sent', email };
 }

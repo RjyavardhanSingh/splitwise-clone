@@ -39,6 +39,8 @@ model Group {
   members     GroupMember[]
   expenses    Expense[]
   invites     GroupInvite[]
+
+  @@index([createdById])
 }
 
 model GroupMember {
@@ -50,6 +52,7 @@ model GroupMember {
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([groupId, userId])
+  @@index([userId])
 }
 
 model Expense {
@@ -67,6 +70,10 @@ model Expense {
   paidBy    User            @relation("ExpensePayer", fields: [paidById], references: [id])
   createdBy User            @relation("ExpenseCreator", fields: [createdById], references: [id])
   splits    ExpenseSplit[]
+
+  @@index([groupId, createdAt])
+  @@index([paidById])
+  @@index([createdById])
 }
 
 model ExpenseSplit {
@@ -78,6 +85,9 @@ model ExpenseSplit {
 
   expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])
+
+  @@index([expenseId])
+  @@index([userId])
 }
 
 model GroupInvite {
@@ -92,4 +102,5 @@ model GroupInvite {
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, email])
+  @@index([email])
 }
