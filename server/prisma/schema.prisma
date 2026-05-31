@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String?
+  googleId  String?  @unique
+  authProvider String @default("email")
+  isVerified    Boolean @default(false)
+  verificationCode      String?
+  verificationCodeExpiry DateTime?
+  resetToken            String?  @unique
+  resetTokenExpiry      DateTime?
+  createdAt DateTime @default(now())
+
+  groupsCreated     Group[]          @relation("GroupCreator")
+  groupMemberships  GroupMember[]
+  expensesPaid      Expense[] @relation("ExpensePayer")
+  expensesCreated   Expense[] @relation("ExpenseCreator")
+  splits            ExpenseSplit[]
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  createdBy   User          @relation("GroupCreator", fields: [createdById], references: [id])
+  createdById String
+  members     GroupMember[]
+  expenses    Expense[]
+  invites     GroupInvite[]
+}
+
+model GroupMember {
+  groupId   String
+  userId    String
+  joinedAt  DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, userId])
+}
+
+model Expense {
+  id           String   @id @default(uuid())
+  title        String
+  amount       Decimal  @db.Decimal(10, 2)
+  isSettlement Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  groupId     String
+  paidById    String
+  createdById String
+
+  group     Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  paidBy    User            @relation("ExpensePayer", fields: [paidById], references: [id])
+  createdBy User            @relation("ExpenseCreator", fields: [createdById], references: [id])
+  splits    ExpenseSplit[]
+}
+
+model ExpenseSplit {
+  id        String  @id @default(uuid())
+  amount    Decimal @db.Decimal(10, 2)
+
+  expenseId String
+  userId    String
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model GroupInvite {
+  id        String   @id @default(uuid())
+  groupId   String
+  email     String
+  token     String   @unique
+  accepted  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, email])
+}
