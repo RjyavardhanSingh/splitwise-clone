@@ -8,4 +8,4 @@ Thumbs.db
 *.db
 prisma/*.db
 AI_CONTEXT.md
-BUILD_CONTEXT.md
+BUILD_PLAN.md
