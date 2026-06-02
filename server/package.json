@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
+    "@sendgrid/mail": "^8.1.6",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -21,7 +22,6 @@
     "google-auth-library": "^10.6.2",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^8.0.10",
-    "resend": "^6.12.4",
     "uuid": "^14.0.0"
   },
   "devDependencies": {

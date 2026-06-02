@@ -1,18 +1,21 @@
-import { Resend } from 'resend';
+import sgMail from '@sendgrid/mail';
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
-const FROM = process.env.RESEND_FROM || 'CONTRI <onboarding@resend.dev>';
+const FROM = process.env.SENDGRID_FROM || 'CONTRI <verifier@contri.com>';
 
 async function sendMail({ to, subject, html }) {
-  if (!resend) {
-    console.log(`[DEV] Email to ${to} not sent (no RESEND_API_KEY)`);
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log(`[DEV] Email to ${to} not sent (no SENDGRID_API_KEY)`);
     return;
   }
-  const { error } = await resend.emails.send({ from: FROM, to, subject, html });
-  if (error) console.error('Email send failed:', error);
+  try {
+    await sgMail.send({ to, from: FROM, subject, html });
+  } catch (err) {
+    console.error('Email send failed:', err.response?.body || err.message);
+  }
 }
 
 export async function sendVerificationEmail(email, name, code) {
