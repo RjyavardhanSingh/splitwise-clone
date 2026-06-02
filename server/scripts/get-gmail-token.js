@@ -39,7 +39,7 @@ console.log(`  ${REDIRECT_URI}`);
 console.log('Click "Save"\n');
 
 console.log('=== Step 3: Authorize ===');
-console.log('Visit this URL in your browser (sign in as rajyyavardhans92@gmail.com):');
+console.log('Visit this URL in your browser (sign in as rajyavardhans92@gmail.com):');
 console.log('\n' + authUrl + '\n');
 
 const server = http.createServer(async (req, res) => {
