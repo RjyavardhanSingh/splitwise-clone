@@ -1,37 +1,23 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-function createTransport() {
-  try {
-    return nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      connectionTimeout: 5000,
-    });
-  } catch {
-    return null;
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+const FROM = process.env.RESEND_FROM || 'CONTRI <onboarding@resend.dev>';
+
+async function sendMail({ to, subject, html }) {
+  if (!resend) {
+    console.log(`[DEV] Email to ${to} not sent (no RESEND_API_KEY)`);
+    return;
   }
-}
-
-const transporter = createTransport();
-
-async function sendMail(options) {
-  if (!transporter) return;
-  try {
-    await transporter.sendMail(options);
-  } catch (err) {
-    console.error('Email send failed:', err.message);
-  }
+  const { error } = await resend.emails.send({ from: FROM, to, subject, html });
+  if (error) console.error('Email send failed:', error);
 }
 
 export async function sendVerificationEmail(email, name, code) {
   console.log(`[DEV] Verification code for ${email}: ${code}`);
   await sendMail({
-    from: `"CONTRI" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Welcome to CONTRI — Verify your email',
     html: `
@@ -50,7 +36,6 @@ export async function sendVerificationEmail(email, name, code) {
 export async function sendGroupInviteEmail(email, inviterName, groupName, acceptLink) {
   console.log(`[DEV] Invite email to ${email}: ${inviterName} invited you to "${groupName}"`);
   await sendMail({
-    from: `"CONTRI" <${process.env.SMTP_USER}>`,
     to: email,
     subject: `${inviterName} invited you to "${groupName}" on CONTRI`,
     html: `
@@ -72,7 +57,6 @@ export async function sendExpenseNotificationEmail(email, userName, groupName, e
   const isSettlement = type === 'settlement';
   console.log(`[DEV] ${isSettlement ? 'Settlement' : 'Expense'} notification to ${email}: ${paidByName} ${isSettlement ? 'settled' : 'added'} in "${groupName}"`);
   await sendMail({
-    from: `"CONTRI" <${process.env.SMTP_USER}>`,
     to: email,
     subject: isSettlement
       ? `Settlement in "${groupName}" on CONTRI`
@@ -103,7 +87,6 @@ export async function sendExpenseNotificationEmail(email, userName, groupName, e
 export async function sendResetPasswordEmail(email, code) {
   console.log(`[DEV] Password reset code for ${email}: ${code}`);
   await sendMail({
-    from: `"CONTRI" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'CONTRI — Reset your password',
     html: `
