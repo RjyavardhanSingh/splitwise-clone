@@ -1,20 +1,38 @@
-import sgMail from '@sendgrid/mail';
+import { google } from 'googleapis';
 
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const REFRESH_TOKEN = process.env.GMAIL_REFRESH_TOKEN;
+const REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob';
+
+const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+if (REFRESH_TOKEN) oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+
+const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+function encodeEmail({ to, subject, html }) {
+  const str = [
+    `To: ${to}`,
+    'Content-Type: text/html; charset=utf-8',
+    'MIME-Version: 1.0',
+    `Subject: =?utf-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    '',
+    html,
+  ].join('\n');
+  return Buffer.from(str).toString('base64url');
 }
 
-const FROM = process.env.SENDGRID_FROM || 'CONTRI <verifier@contri.com>';
-
 async function sendMail({ to, subject, html }) {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.log(`[DEV] Email to ${to} not sent (no SENDGRID_API_KEY)`);
+  if (!REFRESH_TOKEN) {
+    console.log(`[DEV] Email to ${to} not sent (no GMAIL_REFRESH_TOKEN)`);
     return;
   }
   try {
-    await sgMail.send({ to, from: FROM, subject, html });
+    const raw = encodeEmail({ to, subject, html });
+    await gmail.users.messages.send({ userId: 'me', requestBody: { raw } });
+    console.log(`Email sent to ${to}`);
   } catch (err) {
-    console.error('Email send failed:', err.response?.body || err.message);
+    console.error('Email send failed:', err.response?.data?.error?.message || err.message);
   }
 }
 
