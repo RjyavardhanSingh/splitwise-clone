@@ -62,7 +62,7 @@ export default function CreateGroup() {
               <Link to="/dashboard" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                 &larr; Back to Dashboard
               </Link>
-              <h1 className="text-xl font-bold text-gray-900 mt-1 dark:text-[#f1f1f1]">Create Group</h1>
+              <h1 className="text-xl font-bold text-gray-900 mt-1 dark:text-white">Create Group</h1>
             </div>
 
             {error && (
@@ -75,7 +75,7 @@ export default function CreateGroup() {
                 placeholder="Group name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5B5BF7]/20 focus:border-[#5B5BF7] transition-all dark:border-[#2a2a35]"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5B5BF7]/20 focus:border-[#5B5BF7] transition-all dark:bg-[#1a1a23] dark:text-[#f1f1f1] dark:border-[#2a2a35] dark:placeholder-gray-500"
               />
 
               <div>
@@ -90,14 +90,14 @@ export default function CreateGroup() {
                   value={emails}
                   onChange={(e) => setEmails(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#5B5BF7]/20 focus:border-[#5B5BF7] transition-all dark:border-[#2a2a35]"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#5B5BF7]/20 focus:border-[#5B5BF7] transition-all dark:bg-[#1a1a23] dark:text-[#f1f1f1] dark:border-[#2a2a35] dark:placeholder-gray-500"
                 />
               </div>
 
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => navigate(-1)}
-                  className="flex-1 px-4 py-2.5 text-sm border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-medium dark:border-[#2a2a35] dark:hover:bg-[#22222e]"
+                  className="flex-1 px-4 py-2.5 text-sm border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-medium dark:text-[#f1f1f1] dark:border-[#2a2a35] dark:hover:bg-[#22222e]"
                 >
                   Cancel
                 </button>
