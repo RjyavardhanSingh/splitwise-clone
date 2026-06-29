@@ -10,12 +10,15 @@ if (REFRESH_TOKEN) oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN })
 
 const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
+const FROM_EMAIL = 'rajyavardhans92@gmail.com';
+
 function encodeEmail({ to, subject, html }) {
   const str = [
+    `From: ${FROM_EMAIL}`,
     `To: ${to}`,
     'Content-Type: text/html; charset=utf-8',
     'MIME-Version: 1.0',
-    `Subject: =?utf-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
     '',
     html,
   ].join('\n');
@@ -29,10 +32,11 @@ async function sendMail({ to, subject, html }) {
   }
   try {
     const raw = encodeEmail({ to, subject, html });
-    await gmail.users.messages.send({ userId: 'me', requestBody: { raw } });
-    console.log(`Email sent to ${to}`);
+    const res = await gmail.users.messages.send({ userId: 'me', requestBody: { raw } });
+    console.log(`Email sent to ${to} — Gmail ID: ${res.data.id}`);
   } catch (err) {
-    console.error('Email send failed:', err.response?.data?.error?.message || err.message);
+    const detail = err.response?.data?.error || err.message;
+    console.error('Email send failed:', JSON.stringify(detail));
   }
 }
 
